@@ -1,10 +1,13 @@
 package edu.poli.job.core;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileStorage {
@@ -72,4 +75,38 @@ public class FileStorage {
 		borrar.deleteOnExit();
 	}
 
+	public static List<String> getFilesByPrefix(String prefix) throws CustomException {
+		List<String> listResponse = new ArrayList<>();
+		try {
+			String dirPath = JobUtil.getProperty(DIR_PATH);
+			File carpeta = new File(dirPath);
+			String[] listado = carpeta.list();
+			for (String in : listado) {
+				if (in.startsWith(prefix)) {
+					listResponse.add(in);
+				}
+			}
+		} catch (Exception e) {
+			throw new CustomException("Error al listar ficheros");
+		}
+		return listResponse;
+	}
+
+	public static List<String> linesByFile(String fileName) throws CustomException {
+		List<String> lineStrings = new ArrayList<>();
+		try {
+			String dirPath = JobUtil.getProperty(DIR_PATH);
+			String file = dirPath.concat(PATH_SEPARATOR).concat(fileName);
+			FileReader fr = new FileReader(file);
+			BufferedReader br = new BufferedReader(fr);
+			String linea;
+			while ((linea = br.readLine()) != null) {
+				lineStrings.add(linea);
+			}
+			br.close();
+		} catch (Exception e) {
+			throw new CustomException("Error al leer archivo " + e.getMessage());
+		}
+		return lineStrings;
+	}
 }
